@@ -32,8 +32,7 @@ def train_one_epoch(model, dataloader, criterion, optimizer, device):
     for images, labels in progress_bar:
         images = images.to(device)
         labels = labels.to(device)
-        print(images.device)
-        break
+        
 
         optimizer.zero_grad()
 
