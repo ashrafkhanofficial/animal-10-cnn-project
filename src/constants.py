@@ -5,7 +5,7 @@
 DATA_DIR = "data"
 RAW_DATA_DIR = "data/raw"
 PROCESSED_DATA_DIR = "data/processed"
-DATASET_DIR = "data/raw/raw-img"
+DATASET_DIR = "/content/data/raw/raw-img"
 
 CHECKPOINT_DIR = "checkpoints"
 RESULTS_DIR = "results"
