@@ -26,3 +26,13 @@ std:
   - 0.229
   - 0.224
   - 0.225
+
+
+# ANN Configuration
+hidden_dims:
+  - 512
+  - 256
+
+activation: relu
+dropout: 0.2
+use_batchnorm: true
