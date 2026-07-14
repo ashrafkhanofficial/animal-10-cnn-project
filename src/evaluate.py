@@ -4,6 +4,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     f1_score,
+    confusion_matrix
 )
 
 
@@ -81,3 +82,29 @@ def evaluate(model, dataloader, device):
     }
 
     return metrics
+
+def get_confusion_matrix(model, dataloader, device):
+    """
+    Compute the confusion matrix for a trained model.
+
+    Args:
+        model (nn.Module): Trained model.
+        dataloader (DataLoader): Evaluation dataloader.
+        device: CPU or GPU.
+
+    Returns:
+        numpy.ndarray: Confusion matrix.
+    """
+
+    true_labels, predicted_labels = predict(
+        model,
+        dataloader,
+        device,
+    )
+
+    cm = confusion_matrix(
+        true_labels,
+        predicted_labels,
+    )
+
+    return cm
