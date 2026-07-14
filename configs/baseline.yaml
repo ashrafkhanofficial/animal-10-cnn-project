@@ -30,8 +30,8 @@ std:
 
 # ANN Configuration
 hidden_dims:
-  - 512
-  - 256
+  - 64
+  - 32
 
 activation: relu
 dropout: 0.2
