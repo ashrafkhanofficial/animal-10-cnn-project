@@ -1,4 +1,5 @@
 import torch
+from tqdm import tqdm
 
 
 def train_one_epoch(model, dataloader, criterion, optimizer, device):
@@ -22,7 +23,13 @@ def train_one_epoch(model, dataloader, criterion, optimizer, device):
     correct = 0
     total = 0
 
-    for images, labels in dataloader:
+    progress_bar = tqdm(
+    dataloader,
+    desc="Training",
+    leave=False
+    )
+
+    for images, labels in progress_bar:
         images = images.to(device)
         labels = labels.to(device)
 
@@ -41,8 +48,14 @@ def train_one_epoch(model, dataloader, criterion, optimizer, device):
         correct += (predicted == labels).sum().item()
         total += labels.size(0)
 
+        progress_bar.set_postfix(
+        loss=f"{loss.item():.4f}",
+        acc=f"{100 * correct / total:.2f}%"
+        )
+
     average_loss = running_loss / total
     accuracy = correct / total
+   
 
     return average_loss, accuracy
 
@@ -68,7 +81,13 @@ def validate_one_epoch(model, dataloader, criterion, device):
     total = 0
 
     with torch.no_grad():
-        for images, labels in dataloader:
+        progress_bar = tqdm(
+            dataloader,
+            desc="Validation",
+            leave=False
+        )
+
+        for images, labels in progress_bar:
             images = images.to(device)
             labels = labels.to(device)
 
@@ -81,6 +100,11 @@ def validate_one_epoch(model, dataloader, criterion, device):
 
             correct += (predicted == labels).sum().item()
             total += labels.size(0)
+
+            progress_bar.set_postfix(
+            loss=f"{loss.item():.4f}",
+            acc=f"{100 * correct / total:.2f}%"
+            )
 
     average_loss = running_loss / total
     accuracy = correct / total
