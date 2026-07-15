@@ -1,5 +1,8 @@
 import torch
 from tqdm.notebook import tqdm
+from src.utils import save_checkpoint
+import os
+
 
 
 def train_one_epoch(model, dataloader, criterion, optimizer, device):
@@ -118,65 +121,52 @@ def train(
     train_loader,
     val_loader,
     criterion,
+    optimizer,
     config,
     device,
+    checkpoint_dir,
+    start_epoch=0,
+    history=None,
+    best_val_accuracy=0.0,
 ):
     """
-    Train a model for multiple epochs.
+    Train a model with checkpoint support.
 
     Args:
         model (nn.Module): Model to train.
         train_loader (DataLoader): Training dataloader.
         val_loader (DataLoader): Validation dataloader.
         criterion: Loss function.
+        optimizer: Optimizer.
         config (dict): Configuration dictionary.
         device: CPU or GPU.
+        checkpoint_dir (str): Directory to save checkpoints.
+        start_epoch (int): Epoch to resume training from.
+        history (dict): Existing training history.
+        best_val_accuracy (float): Best validation accuracy so far.
 
     Returns:
-        tuple: (trained_model, history)
+        tuple:
+            model,
+            history,
+            best_val_accuracy
     """
 
-    optimizer_name = config["optimizer"].lower()
+    if history is None:
+        history = {
+            "train_loss": [],
+            "train_accuracy": [],
+            "val_loss": [],
+            "val_accuracy": [],
+        }
 
-    if optimizer_name == "sgd":
-        optimizer = torch.optim.SGD(
-            model.parameters(),
-            lr=config["learning_rate"],
-            weight_decay=config["weight_decay"],
-        )
+    os.makedirs(checkpoint_dir, exist_ok=True)
 
-    elif optimizer_name == "adam":
-        optimizer = torch.optim.Adam(
-            model.parameters(),
-            lr=config["learning_rate"],
-            weight_decay=config["weight_decay"],
-        )
+    epochs = config["epochs"]
 
-    elif optimizer_name == "adamw":
-        optimizer = torch.optim.AdamW(
-            model.parameters(),
-            lr=config["learning_rate"],
-            weight_decay=config["weight_decay"],
-        )
+    for epoch in range(start_epoch, epochs):
 
-    elif optimizer_name == "rmsprop":
-        optimizer = torch.optim.RMSprop(
-            model.parameters(),
-            lr=config["learning_rate"],
-            weight_decay=config["weight_decay"],
-        )
-
-    else:
-        raise ValueError(f"Unsupported optimizer: {optimizer_name}")
-
-    history = {
-        "train_loss": [],
-        "train_accuracy": [],
-        "val_loss": [],
-        "val_accuracy": [],
-    }
-
-    for epoch in range(config["epochs"]):
+        print(f"\nEpoch {epoch + 1}/{epochs}")
 
         train_loss, train_accuracy = train_one_epoch(
             model,
@@ -195,15 +185,55 @@ def train(
 
         history["train_loss"].append(train_loss)
         history["train_accuracy"].append(train_accuracy)
+
         history["val_loss"].append(val_loss)
         history["val_accuracy"].append(val_accuracy)
 
-        print(
-            f"Epoch [{epoch + 1}/{config['epochs']}] | "
-            f"Train Loss: {train_loss:.4f} | "
-            f"Train Acc: {train_accuracy:.4f} | "
-            f"Val Loss: {val_loss:.4f} | "
-            f"Val Acc: {val_accuracy:.4f}"
+
+        # Save latest checkpoint after every epoch
+
+        latest_checkpoint = os.path.join(
+            checkpoint_dir,
+            "latest_checkpoint.pth",
         )
 
-    return model, history
+        save_checkpoint(
+            model,
+            optimizer,
+            epoch + 1,
+            history,
+            best_val_accuracy,
+            latest_checkpoint,
+        )
+
+
+        # Save best model
+
+        if val_accuracy > best_val_accuracy:
+
+            best_val_accuracy = val_accuracy
+
+            best_model_path = os.path.join(
+                checkpoint_dir,
+                "best_model.pth",
+            )
+
+            save_checkpoint(
+                model,
+                optimizer,
+                epoch + 1,
+                history,
+                best_val_accuracy,
+                best_model_path,
+            )
+
+
+        print(
+            f"Train Loss: {train_loss:.4f} | "
+            f"Train Acc: {train_accuracy:.2f}% | "
+            f"Val Loss: {val_loss:.4f} | "
+            f"Val Acc: {val_accuracy:.2f}%"
+        )
+
+
+    return model, history, best_val_accuracy
