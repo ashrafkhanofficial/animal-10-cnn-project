@@ -1,5 +1,8 @@
 import yaml
 import torch
+import os
+from datetime import datetime
+import pandas as pd
 
 
 def load_config(config_path):
@@ -102,3 +105,66 @@ def load_checkpoint(
         history,
         best_val_accuracy,
     )
+
+
+
+def log_experiment(results, csv_path):
+    """
+    Log an experiment to a CSV file.
+
+    Args:
+        results (dict): Dictionary containing experiment parameters and metrics.
+
+        Example:
+        {
+            "parameters": {...},
+            "metrics": {...}
+        }
+
+        csv_path (str): Path to the experiments CSV file.
+
+    Returns:
+        None
+    """
+
+    # Merge parameters and metrics into a single dictionary
+    experiment = {
+        **results["parameters"],
+        **results["metrics"],
+    }
+
+    # Add timestamp
+    experiment["timestamp"] = datetime.now().strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
+    # Keep timestamp as the first column
+    columns = ["timestamp"] + [
+        key for key in experiment.keys()
+        if key != "timestamp"
+    ]
+
+    experiment_df = pd.DataFrame(
+        [experiment],
+        columns=columns,
+    )
+
+    # Create directory if it doesn't exist
+    os.makedirs(
+        os.path.dirname(csv_path),
+        exist_ok=True,
+    )
+
+    # Append or create CSV
+    if os.path.exists(csv_path):
+        experiment_df.to_csv(
+            csv_path,
+            mode="a",
+            header=False,
+            index=False,
+        )
+    else:
+        experiment_df.to_csv(
+            csv_path,
+            index=False,
+        )

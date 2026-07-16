@@ -143,7 +143,7 @@ def train(
         checkpoint_dir (str): Directory to save checkpoints.
         start_epoch (int): Epoch to resume training from.
         history (dict): Existing training history.
-        best_val_accuracy (float): Best validation accuracy so far.
+        best_val_accuracy (float): Best validation accuracy achieved so far.
 
     Returns:
         tuple:
@@ -185,13 +185,16 @@ def train(
 
         history["train_loss"].append(train_loss)
         history["train_accuracy"].append(train_accuracy)
-
         history["val_loss"].append(val_loss)
         history["val_accuracy"].append(val_accuracy)
 
+        # Check whether this is the best model so far
+        is_best = val_accuracy > best_val_accuracy
 
-        # Save latest checkpoint after every epoch
+        if is_best:
+            best_val_accuracy = val_accuracy
 
+        # Save latest checkpoint after every completed epoch
         latest_checkpoint = os.path.join(
             checkpoint_dir,
             "latest_checkpoint.pth",
@@ -206,12 +209,8 @@ def train(
             latest_checkpoint,
         )
 
-
-        # Save best model
-
-        if val_accuracy > best_val_accuracy:
-
-            best_val_accuracy = val_accuracy
+        # Save best model only if validation accuracy improved
+        if is_best:
 
             best_model_path = os.path.join(
                 checkpoint_dir,
@@ -227,13 +226,11 @@ def train(
                 best_model_path,
             )
 
-
         print(
             f"Train Loss: {train_loss:.4f} | "
             f"Train Acc: {train_accuracy:.2f}% | "
             f"Val Loss: {val_loss:.4f} | "
             f"Val Acc: {val_accuracy:.2f}%"
         )
-
 
     return model, history, best_val_accuracy
