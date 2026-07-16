@@ -228,9 +228,9 @@ def train(
 
         print(
             f"Train Loss: {train_loss:.4f} | "
-            f"Train Acc: {train_accuracy:.2f}% | "
+            f"Train Acc: {train_accuracy * 100:.2f}% | "
             f"Val Loss: {val_loss:.4f} | "
-            f"Val Acc: {val_accuracy:.2f}%"
+            f"Val Acc: {val_accuracy * 100:.2f}%"
         )
 
     return model, history, best_val_accuracy
