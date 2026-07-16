@@ -36,3 +36,12 @@ hidden_dims:
 activation: relu
 dropout: 0.2
 use_batchnorm: true
+
+
+conv_channels:
+  - 32
+  - 64
+  - 128
+
+kernel_size: 3
+
