@@ -190,3 +190,16 @@ class EfficientNetB0Classifier(nn.Module):
         if config["freeze_backbone"]:
             for param in self.model.parameters():
                 param.requires_grad = False
+
+        self.model.classifier[1] = nn.Linear(
+            in_features=self.model.classifier[1].in_features,
+            out_features=NUM_CLASSES,
+        )
+
+
+    def forward(self, x):
+        """
+        Forward pass.
+        """
+
+        return self.model(x)
