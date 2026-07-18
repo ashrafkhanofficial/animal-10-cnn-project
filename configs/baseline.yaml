@@ -45,3 +45,5 @@ conv_channels:
 
 kernel_size: 3
 
+pretrained: true
+freeze_backbone: true

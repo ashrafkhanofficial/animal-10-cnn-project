@@ -1,6 +1,9 @@
 import torch.nn as nn
-
 from src.constants import NUM_CLASSES
+from torchvision.models import (
+    resnet18,
+    ResNet18_Weights,
+)
 
 def get_activation(activation_name):
         """
@@ -130,3 +133,36 @@ class CNNClassifier(nn.Module):
         x = self.classifier(x)
 
         return x
+
+
+class ResNet18Classifier(nn.Module):
+    """
+    ResNet18 model for image classification using transfer learning.
+    """
+
+    def __init__(self, config):
+        super().__init__()
+
+        self.model = resnet18(
+        weights=(
+            ResNet18_Weights.DEFAULT
+            if config["pretrained"]
+            else None
+        )
+        )
+
+        if config["freeze_backbone"]:
+            for param in self.model.parameters():
+                param.requires_grad = False
+
+        self.model.fc = nn.Linear(
+        in_features=self.model.fc.in_features,
+        out_features=NUM_CLASSES,
+        )
+
+    def forward(self, x):
+        """
+        Forward pass.
+        """
+
+        return self.model(x)
