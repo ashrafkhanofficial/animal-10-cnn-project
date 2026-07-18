@@ -3,6 +3,9 @@ from src.constants import NUM_CLASSES
 from torchvision.models import (
     resnet18,
     ResNet18_Weights,
+
+    efficientnet_b0,
+    EfficientNet_B0_Weights,
 )
 
 def get_activation(activation_name):
@@ -166,3 +169,24 @@ class ResNet18Classifier(nn.Module):
         """
 
         return self.model(x)
+    
+
+class EfficientNetB0Classifier(nn.Module):
+    """
+    EfficientNet-B0 model for image classification using transfer learning.
+    """
+
+    def __init__(self, config):
+        super().__init__()
+
+        self.model = efficientnet_b0(
+            weights=(
+                EfficientNet_B0_Weights.DEFAULT
+                if config["pretrained"]
+                else None
+            )
+        )
+
+        if config["freeze_backbone"]:
+            for param in self.model.parameters():
+                param.requires_grad = False
