@@ -2,7 +2,7 @@
 # Dataset
 # ===========================
 
-image_size: 32
+image_size: 224
 
 train_split: 0.70
 val_split: 0.15
@@ -23,7 +23,7 @@ pin_memory: true
 # Training
 # ===========================
 
-epochs: 2
+epochs: 20
 learning_rate: 0.001
 
 # ===========================
@@ -36,6 +36,6 @@ kernel_size: 3
 
 activation: relu
 
-dropout: 0.3
+dropout: 0.2
 
 use_batchnorm: true
