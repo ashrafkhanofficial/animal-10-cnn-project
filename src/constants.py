@@ -1,3 +1,4 @@
+import os
 # ==========================
 # Project Paths
 # ==========================
@@ -9,9 +10,10 @@ DATASET_DIR = "/content/data/raw/raw-img"
 
 CHECKPOINT_DIR = "checkpoints"
 RESULTS_DIR = "results"
-PLOTS_DIR = "results/plots"
-CONFUSION_MATRIX_DIR = "results/confusion_matrices"
-GRADCAM_DIR = "results/gradcam"
+PLOTS_DIR = os.path.join(RESULTS_DIR,"plots",)
+CONFUSION_MATRIX_DIR = os.path.join(RESULTS_DIR,"confusion_matrices",)
+GRADCAM_DIR = os.path.join(RESULTS_DIR,"gradcam",)
+EXPERIMENTS_CSV = os.path.join(RESULTS_DIR,"metrics","experiments.csv",)
 
 # ==========================
 # Reproducibility
